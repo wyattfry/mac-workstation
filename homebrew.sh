@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
+which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 tapped="$(brew tap)"
 
@@ -34,4 +36,4 @@ for p in ${pkgs[@]}; do
   fi
 done
 
-# brew autoupdate start
+brew autoupdate start
