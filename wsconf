@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 packages=(
-# BEGINNING_OF_PACKAGES
+  # BEGINNING_OF_PACKAGES
   aerospace
   azure-cli
   colima
@@ -29,7 +29,7 @@ packages=(
   yq
   zsh-autosuggestions
   zsh-syntax-highlighting
-# END_OF_PACKAGES
+  # END_OF_PACKAGES
 )
 
 taps=(
@@ -49,7 +49,7 @@ function source_pl10k() {
   if grep powerlevel ~/.zshrc &>/dev/null; then
     echo '[✓] sourcing powerlevel10k theme'
   else
-    echo 'source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme' >> ~/.zshrc
+    echo 'source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
   fi
 
 }
@@ -63,35 +63,35 @@ function enable_brew_autoupdate() {
 }
 
 function install_homebrew() {
-  if which brew &> /dev/null; then
-    echo '[✓] homebrew' 
+  if which brew &>/dev/null; then
+    echo '[✓] homebrew'
   else
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 }
 
 function install_taps() {
-	tapped="$(brew tap)"
+  tapped="$(brew tap)"
 
-	for t in "${taps[@]}"; do
-	  if echo "${tapped[@]}" | grep -qw "$t"; then
-	    echo "[✓] tap: $t"
-	  else
-	    brew tap "$t" &> /dev/null
-	  fi
-	done
+  for t in "${taps[@]}"; do
+    if echo "${tapped[@]}" | grep -qw "$t"; then
+      echo "[✓] tap: $t"
+    else
+      brew tap "$t" &>/dev/null
+    fi
+  done
 }
 
 function install_brews() {
-	installed="$(brew list)"
+  installed="$(brew list)"
 
-	for p in "${packages[@]}"; do
-	  if ! echo "${installed[@]}" | grep -qw "$p"; then
+  for p in "${packages[@]}"; do
+    if ! echo "${installed[@]}" | grep -qw "$p"; then
       printf "[ ] brew: Installing %s...\r" "$p"
-	    brew install "$p" &> /dev/null
-	  fi
-	  echo "[✓] brew: $p                      "
-	done
+      brew install "$p" &>/dev/null
+    fi
+    echo "[✓] brew: $p                      "
+  done
 }
 
 function ensure_line_in_file() {
@@ -100,19 +100,19 @@ function ensure_line_in_file() {
   if grep -qF "$line" "$file"; then
     echo "[✓] $line"
   else
-    echo "$line" >> "$file"
+    echo "$line" >>"$file"
   fi
 }
 
 # Handle 'add' subcommand
 if [[ ${1:-null} == 'add' ]]; then
   pkg_to_add="$2"
-	installed="$(brew list)"
+  installed="$(brew list)"
   if echo "${installed[@]}" | grep -qw "$pkg_to_add"; then
     echo "'$pkg_to_add' is already installed"
     exit
   fi
-  if ! brew search "$pkg_to_add" &> /dev/null; then
+  if ! brew search "$pkg_to_add" &>/dev/null; then
     echo "Package '$pkg_to_add' not found via Homebrew"
     exit
   fi
@@ -122,7 +122,7 @@ if [[ ${1:-null} == 'add' ]]; then
   sed -i '' "${end_line}i\\
   $pkg_to_add\\
 " "$0"
-  "$SCRIPT_DIR/sort_section.sh" "$(( start_line + 1))" "$end_line" "$0"
+  "$SCRIPT_DIR/sort_section.sh" "$((start_line + 1))" "$end_line" "$0"
   "$0"
   exit
 fi
