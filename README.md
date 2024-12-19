@@ -11,6 +11,13 @@ Some of the things it does:
 
 The operations all check whether they have already been performed before executing for increased efficiency.
 
+## Installation
+
+```sh
+curl -s https://raw.githubusercontent.com/wyattfry/mac-workstation/refs/heads/main/wsconf | sudo tee /usr/local/bin/wsconf
+sudo chmod +x /usr/local/bin/wsconf
+```
+
 ## Usage
 
 ```sh
