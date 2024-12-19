@@ -14,7 +14,7 @@ The operations all check whether they have already been performed before executi
 ## Installation
 
 ```sh
-curl -s https://raw.githubusercontent.com/wyattfry/mac-workstation/refs/heads/main/wsconf | sudo tee /usr/local/bin/wsconf
+sudo curl -sSL https://raw.githubusercontent.com/wyattfry/mac-workstation/refs/heads/main/wsconf -o /usr/local/bin/wsconf
 sudo chmod +x /usr/local/bin/wsconf
 ```
 
