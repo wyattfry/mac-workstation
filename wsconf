@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 packages=(
   # BEGINNING_OF_PACKAGES
@@ -104,6 +103,20 @@ function ensure_line_in_file() {
   fi
 }
 
+function sort_section() {
+  start_line=$1
+  end_line=$2
+  file=$3
+  file_mode=$(stat -f "%Lp" "$file")
+  {
+      head -n $((start_line - 1)) "$file"   # Print lines before the section
+      sed -n "${start_line},${end_line}p" "$file" | sort  # Sort the section
+      tail -n +$((end_line + 1)) "$file"   # Print lines after the section
+  } > "$file.sorted"  # Save the output to a temporary file
+  mv "$file.sorted" "$file"
+  chmod "$file_mode" "$file"
+}
+
 # Handle 'add' subcommand
 if [[ ${1:-null} == 'add' ]]; then
   pkg_to_add="$2"
@@ -122,7 +135,7 @@ if [[ ${1:-null} == 'add' ]]; then
   sed -i '' "${end_line}i\\
   $pkg_to_add\\
 " "$0"
-  "$SCRIPT_DIR/sort_section.sh" "$((start_line + 1))" "$end_line" "$0"
+  sort_section "$((start_line + 1))" "$end_line" "$0"
   "$0"
   exit
 fi
