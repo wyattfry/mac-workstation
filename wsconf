@@ -3,6 +3,7 @@ set -euo pipefail
 
 packages=(
   # BEGINNING_OF_PACKAGES
+  1password-cli
   aerospace
   azure-cli
   colima
@@ -10,6 +11,7 @@ packages=(
   docker
   docker-buildx
   docker-compose
+  firefox
   font-meslo-for-powerlevel10k
   fzf
   gh
@@ -17,13 +19,16 @@ packages=(
   graphviz
   jetbrains-toolbox
   jq
+  kind
   mitmproxy
   powerlevel10k
+  powershell
   rsync
   shellcheck
   shfmt
   sl
   tfenv
+  tmux
   visual-studio-code
   yq
   zsh-autosuggestions
@@ -99,6 +104,7 @@ function ensure_line_in_file() {
   if grep -qF "$line" "$file"; then
     echo "[✓] $line"
   else
+    echo "[✓] $line -- Added"
     echo "$line" >>"$file"
   fi
 }
@@ -145,6 +151,16 @@ install_ohmyzsh
 enable_brew_autoupdate
 install_taps
 install_brews
+
+# Use PL10K zsh theme
 ensure_line_in_file 'source $HOMEBREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme' ~/.zshrc
+
+# Use Zsh plugins
 ensure_line_in_file 'source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' ~/.zshrc
 ensure_line_in_file 'source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh' ~/.zshrc
+
+# 1Password Shell Completion
+ensure_line_in_file 'eval "$(op completion zsh)"; compdef _op op' ~/.zshrc
+
+ensure_line_in_file 'export EDITOR=vim' ~/.zshrc
+ensure_line_in_file 'export VISUAL=$EDITOR' ~/.zshrc

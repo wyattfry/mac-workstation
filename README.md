@@ -5,7 +5,7 @@ This script will set up a macOS machine with packages and settings commonly used
 Some of the things it does:
 
 * Install homebrew
-* Install oh-my-zsh
+* Install oh-my-zsh & powerlevel10k
 * Enable auto updates for homebrew
 * Install many packages via homebrew (see `packages` array in the script)
 
