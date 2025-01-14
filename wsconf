@@ -46,6 +46,23 @@ taps=(
   isen-ng/dotnet-sdk-versions
 )
 
+zshrc_lines=(
+  'source $HOMEBREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme'
+  'source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh'
+  'source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh'
+  'eval "$(op completion zsh)"; compdef _op op'
+  'export EDITOR=vim'
+  'export VISUAL=$EDITOR'
+)
+
+### Helper Functions ###
+
+function configure_zshrc() {
+  for x in "${zshrc_lines[@]}"; do
+    ensure_line_in_file "$x" ~/.zshrc
+  done
+}
+
 function install_ohmyzsh() {
   if [[ ! -d ~/.oh-my-zsh ]]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -120,57 +137,47 @@ function sort_section() {
   file=$3
   file_mode=$(stat -f "%Lp" "$file")
   {
-      head -n $((start_line - 1)) "$file"   # Print lines before the section
-      sed -n "${start_line},${end_line}p" "$file" | sort  # Sort the section
-      tail -n +$((end_line + 1)) "$file"   # Print lines after the section
-  } > "$file.sorted"  # Save the output to a temporary file
+    head -n $((start_line - 1)) "$file"                # Print lines before the section
+    sed -n "${start_line},${end_line}p" "$file" | sort # Sort the section
+    tail -n +$((end_line + 1)) "$file"                 # Print lines after the section
+  } >"$file.sorted"                                    # Save the output to a temporary file
   mv "$file.sorted" "$file"
   chmod "$file_mode" "$file"
 }
 
-# Handle 'add' subcommand
-if [[ ${1:-null} == 'add' ]]; then
-  pkg_to_add="$2"
-  installed="$(brew list)"
-  if echo "${installed[@]}" | grep -qw "$pkg_to_add"; then
-    echo "'$pkg_to_add' is already installed"
-    exit
-  fi
-  if ! brew search "$pkg_to_add" &>/dev/null; then
-    echo "Package '$pkg_to_add' not found via Homebrew"
-    exit
-  fi
-  echo "Adding '$pkg_to_add' to the list of packages"
-  start_line="$(grep -nm1 BEGINNING_OF_PACKAGES "$0" | cut -d: -f1)"
-  end_line="$(grep -nm1 END_OF_PACKAGES "$0" | cut -d: -f1)"
-  sed -i '' "${end_line}i\\
+function handle_subcommands() {
+  if [[ ${1:-null} == 'add' ]]; then
+    pkg_to_add="$2"
+    installed="$(brew list)"
+    if echo "${installed[@]}" | grep -qw "$pkg_to_add"; then
+      echo "'$pkg_to_add' is already installed"
+      exit
+    fi
+    if ! brew search "$pkg_to_add" &>/dev/null; then
+      echo "Package '$pkg_to_add' not found via Homebrew"
+      exit
+    fi
+    echo "Adding '$pkg_to_add' to the list of packages"
+    start_line="$(grep -nm1 BEGINNING_OF_PACKAGES "$0" | cut -d: -f1)"
+    end_line="$(grep -nm1 END_OF_PACKAGES "$0" | cut -d: -f1)"
+    sed -i '' "${end_line}i\\
   $pkg_to_add\\
 " "$0"
-  sort_section "$((start_line + 1))" "$end_line" "$0"
-  echo git commit -am "Add package $pkg_to_add" && echo git push
+    sort_section "$((start_line + 1))" "$end_line" "$0"
+    echo git commit -am "Add package $pkg_to_add" && echo git push
 
-  # Now that the package list has been updated, run the script proper:
-  "$0"
-  exit
-fi
+    # Now that the package list has been updated, run the script proper:
+    "$0"
+    exit
+  fi
+}
 
 # TODO implement a 'remove' subcommand
 
+handle_subcommands "$@"
 install_homebrew
 install_ohmyzsh
 enable_brew_autoupdate
 install_taps
 install_brews
-
-# Use PL10K zsh theme
-ensure_line_in_file 'source $HOMEBREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme' ~/.zshrc
-
-# Use Zsh plugins
-ensure_line_in_file 'source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' ~/.zshrc
-ensure_line_in_file 'source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh' ~/.zshrc
-
-# 1Password Shell Completion
-ensure_line_in_file 'eval "$(op completion zsh)"; compdef _op op' ~/.zshrc
-
-ensure_line_in_file 'export EDITOR=vim' ~/.zshrc
-ensure_line_in_file 'export VISUAL=$EDITOR' ~/.zshrc
+configure_zshrc
