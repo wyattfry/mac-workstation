@@ -11,13 +11,17 @@ packages=(
   docker
   docker-buildx
   docker-compose
+  dotnet-sdk
+  dotnet-sdk8
   firefox
   font-meslo-for-powerlevel10k
   fzf
   gh
+  ghostty
   go
   graphviz
   jetbrains-toolbox
+  jless
   jq
   kind
   mitmproxy
@@ -39,6 +43,7 @@ packages=(
 taps=(
   domt4/autoupdate
   nikitabobko/tap
+  isen-ng/dotnet-sdk-versions
 )
 
 function install_ohmyzsh() {
@@ -142,9 +147,14 @@ if [[ ${1:-null} == 'add' ]]; then
   $pkg_to_add\\
 " "$0"
   sort_section "$((start_line + 1))" "$end_line" "$0"
+  echo git commit -am "Add package $pkg_to_add" && echo git push
+
+  # Now that the package list has been updated, run the script proper:
   "$0"
   exit
 fi
+
+# TODO implement a 'remove' subcommand
 
 install_homebrew
 install_ohmyzsh
